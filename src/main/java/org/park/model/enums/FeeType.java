@@ -1,6 +1,11 @@
 package org.park.model.enums;
 
 public enum FeeType {
-    SUBSCRIPTION,
-    FRACTION
+    MONTHLY,
+    FRACTION,
+    BIWEEKLY,
+    BIMONTHLY,
+    QUARTERLY,
+    BIANNUAL,
+    ANNUAL
 }
