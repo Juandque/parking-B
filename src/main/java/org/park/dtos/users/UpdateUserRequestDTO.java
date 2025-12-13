@@ -1,7 +1,11 @@
 package org.park.dtos.users;
 
-public class UpdateUserRequestDTO {
-    String name;
-    String email;
-    String phone;
+import java.util.UUID;
+
+public record UpdateUserRequestDTO(
+        UUID id,
+        String name,
+        String email,
+        String phone) {
+
 }

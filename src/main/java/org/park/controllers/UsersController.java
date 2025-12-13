@@ -3,12 +3,14 @@ package org.park.controllers;
 import lombok.RequiredArgsConstructor;
 import org.park.dtos.users.CreateUserRequestDTO;
 import org.park.dtos.users.UpdateUserRequestDTO;
+import org.park.dtos.users.UserProfileResponseDTO;
 import org.park.dtos.users.UserResponseDTO;
 import org.park.model.entities.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -36,12 +38,16 @@ public class UsersController {
     }
 
     @GetMapping("/{id}/profile")
-    public  ResponseEntity<?> getUserProfile(@PathVariable String id){
+    public  ResponseEntity<UserProfileResponseDTO> getUserProfile(@PathVariable String id){
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
     @GetMapping("/by-document/{document}")
-    public ResponseEntity<?> getUserByDocument(@PathVariable String document){
+    public ResponseEntity<UserResponseDTO> getUserByDocument(@PathVariable String document){
+        return ResponseEntity.status(HttpStatus.OK).body(null);
+    }
+
+    public ResponseEntity<List<UserResponseDTO>> getAllUsers(){
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
