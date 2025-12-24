@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/vehicles")
@@ -25,7 +26,7 @@ public class VehiclesController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<VehicleProfileResponseDTO> getVehicleById(@PathVariable String id){
+    public ResponseEntity<VehicleProfileResponseDTO> getVehicleById(@PathVariable UUID id){
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
@@ -40,7 +41,7 @@ public class VehiclesController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteVehicle(@PathVariable String id){
+    public ResponseEntity<?> deleteVehicle(@PathVariable UUID id){
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 

@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/parking-slots")
@@ -31,7 +32,7 @@ public class ParkingSlotsController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ParkingSlotSummaryResponseDTO> getParkingSlotById(@PathVariable String id){
+    public ResponseEntity<ParkingSlotSummaryResponseDTO> getParkingSlotById(@PathVariable UUID id){
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
@@ -41,22 +42,22 @@ public class ParkingSlotsController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ParkingSlotSummaryResponseDTO> updateParkingSlot(@RequestBody ParkingSlotRequestDTO parkingSlotRequestDTO, @PathVariable String id){
+    public ResponseEntity<ParkingSlotSummaryResponseDTO> updateParkingSlot(@RequestBody ParkingSlotRequestDTO parkingSlotRequestDTO, @PathVariable UUID id){
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
     @PutMapping("/{id}/block")
-    public ResponseEntity<ParkingSlotSummaryResponseDTO> blockParkingSlotById(@PathVariable String id){
+    public ResponseEntity<ParkingSlotSummaryResponseDTO> blockParkingSlotById(@PathVariable UUID id){
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
     @PutMapping("/{id}/unblock")
-    public ResponseEntity<ParkingSlotSummaryResponseDTO> unblockParkingSlotById(@PathVariable String id){
+    public ResponseEntity<ParkingSlotSummaryResponseDTO> unblockParkingSlotById(@PathVariable UUID id){
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteParkingSlotById(@PathVariable String id){
+    public ResponseEntity<?> deleteParkingSlotById(@PathVariable UUID id){
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 

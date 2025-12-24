@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/occupancies")
@@ -19,7 +20,12 @@ public class ParkingOccupanciesController {
     }
 
     @PutMapping("/{id}/update")
-    public ResponseEntity<OccupancyResponseDTO> updateOccupancy(@PathVariable String id,  @RequestBody OccupancyRequestDTO occupancyRequestDTO) {
+    public ResponseEntity<OccupancyResponseDTO> updateOccupancy(@PathVariable UUID id, @RequestBody OccupancyRequestDTO occupancyRequestDTO) {
+        return ResponseEntity.status(HttpStatus.OK).body(null);
+    }
+
+    @GetMapping("/{id}/for-update")
+    public ResponseEntity<OccupancyInfoUpdateResponseDTO> getOccupancyBeforeUpdate(@PathVariable UUID id){
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
@@ -34,12 +40,17 @@ public class ParkingOccupanciesController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<OccupancyDetailResponseDTO> getOccupancy(@PathVariable String id){
+    public ResponseEntity<OccupancyDetailResponseDTO> getOccupancy(@PathVariable UUID id){
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
     @PutMapping("/{id}/end")
-    public ResponseEntity<EndOccupancyResponseDTO> endOccupancy(@PathVariable String id){
+    public ResponseEntity<EndOccupancyResponseDTO> endOccupancy(@PathVariable UUID id){
+        return ResponseEntity.status(HttpStatus.OK).body(null);
+    }
+
+    @GetMapping("/{id}/for-payment")
+    public ResponseEntity<OccupancyInfoPaymentResponseDTO> getOccupancyInfoForPayment(@PathVariable UUID id){
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 }

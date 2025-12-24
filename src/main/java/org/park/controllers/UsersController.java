@@ -23,7 +23,7 @@ public class UsersController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable String id){
+    public ResponseEntity<?> deleteUser(@PathVariable UUID id){
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
@@ -33,12 +33,12 @@ public class UsersController {
     }
 
     @GetMapping("/{id}")
-    public  ResponseEntity<UserResponseDTO> getUserById(@PathVariable String id){
+    public  ResponseEntity<UserResponseDTO> getUserById(@PathVariable UUID id){
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
     @GetMapping("/{id}/profile")
-    public  ResponseEntity<UserProfileResponseDTO> getUserProfile(@PathVariable String id){
+    public  ResponseEntity<UserProfileResponseDTO> getUserProfile(@PathVariable UUID id){
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
