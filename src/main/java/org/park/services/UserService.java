@@ -2,6 +2,8 @@ package org.park.services;
 
 import lombok.RequiredArgsConstructor;
 import org.park.dtos.users.*;
+import org.park.dtos.vehicles.VehicleResponseDTO;
+import org.park.exceptions.users.DocumentAlreadyRegisteredException;
 import org.park.exceptions.users.UserNotFoundException;
 import org.park.model.entities.User;
 import org.park.model.enums.Status;
@@ -17,17 +19,13 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final VehicleService vehicleService;
 
     public UserResponseDTO createUser(CreateUserRequestDTO createUserRequestDTO){
-        if(!documentAlredyRegistered(createUserRequestDTO.document())){
-            throw new RuntimeException("Documento ya registrado");
+        if(!isDocumentAlredyRegistered(createUserRequestDTO.document())){
+            throw new DocumentAlreadyRegisteredException(createUserRequestDTO.document());
         }
-        User user = new User();
-        user.setDocument(createUserRequestDTO.document());
-        user.setName(createUserRequestDTO.name());
-        user.setEmail(createUserRequestDTO.email());
-        user.setPhone(createUserRequestDTO.phone());
-        userRepository.save(user);
+        User user = getOrCreateUserByDocument(createUserRequestDTO);
         return new UserResponseDTO(user.getId(),user.getName(),user.getEmail(),user.getPhone(),user.getDocument());
     }
 
@@ -53,15 +51,14 @@ public class UserService {
 
     public UserProfileResponseDTO  getUserProfile(UUID id){
         User user = getUserOrThrow(id);
-        //TODO obtener vehiculos
-
-        return new UserProfileResponseDTO(user.getId(),user.getName(),user.getDocument(),user.getPhone(),user.getEmail(),null);
+        List<VehicleResponseDTO> vehiclesFound=vehicleService.getVehiclesByUserId(id);
+        return new UserProfileResponseDTO(user.getId(),user.getName(),user.getDocument(),user.getPhone(),user.getEmail(),vehiclesFound);
     }
 
     public UserResponseDTO getUserByDocument(String document){
         Optional<User> userOptional = userRepository.findByDocument(document);
         if (userOptional.isEmpty()) {
-            throw new UserNotFoundException("Documento no encontrado");
+            throw new UserNotFoundException(document);
         }
         User user = userOptional.get();
         return new UserResponseDTO(user.getId(),user.getName(),user.getEmail(),user.getPhone(),user.getDocument());
@@ -75,8 +72,8 @@ public class UserService {
         }
         return usersFound;
     }
-    
-    public boolean documentAlredyRegistered(String document){
+
+    public boolean isDocumentAlredyRegistered(String document){
         return userRepository.findByDocument(document).isPresent();
     }
 
@@ -86,5 +83,18 @@ public class UserService {
             throw new UserNotFoundException(id.toString());
         }
         return userOptional.get();
+    }
+
+    public User getOrCreateUserByDocument(CreateUserRequestDTO  createUserRequestDTO){
+        return userRepository.findByDocument(createUserRequestDTO.document()).orElseGet(()-> createUserEntity(createUserRequestDTO));
+    }
+
+    private User createUserEntity(CreateUserRequestDTO createUserRequestDTO){
+        User user = new User();
+        user.setName(createUserRequestDTO.name());
+        user.setEmail(createUserRequestDTO.email());
+        user.setPhone(createUserRequestDTO.phone());
+        user.setDocument(createUserRequestDTO.document());
+        return userRepository.save(user);
     }
 }
