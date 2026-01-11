@@ -9,6 +9,7 @@ import org.park.model.entities.User;
 import org.park.model.enums.Status;
 import org.park.repositories.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class UserService {
     private final UserRepository userRepository;
     private final VehicleService vehicleService;
@@ -25,7 +27,7 @@ public class UserService {
         if(!isDocumentAlredyRegistered(createUserRequestDTO.document())){
             throw new DocumentAlreadyRegisteredException(createUserRequestDTO.document());
         }
-        User user = getOrCreateUserByDocument(createUserRequestDTO);
+        User user = createUserEntity(createUserRequestDTO);
         return new UserResponseDTO(user.getId(),user.getName(),user.getEmail(),user.getPhone(),user.getDocument());
     }
 

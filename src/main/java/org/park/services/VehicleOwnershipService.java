@@ -7,6 +7,7 @@ import org.park.model.entities.Vehicle;
 import org.park.model.entities.VehicleOwnership;
 import org.park.repositories.VehicleOwnershipRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class VehicleOwnershipService {
     private final VehicleOwnershipRepository vehicleOwnershipRepository;
 
