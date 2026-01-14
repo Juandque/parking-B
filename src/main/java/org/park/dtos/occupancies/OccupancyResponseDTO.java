@@ -5,8 +5,8 @@ import java.util.UUID;
 
 public record OccupancyResponseDTO(
         UUID occupancyId,
-        UUID userId,
         UUID vehicleId,
+        UUID userId,
         UUID parkingSlotId,
         LocalDateTime startDate
 ) {

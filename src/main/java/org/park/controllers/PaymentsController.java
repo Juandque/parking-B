@@ -6,6 +6,7 @@ import org.park.dtos.occupancies.OccupancyDetailResponseDTO;
 import org.park.dtos.payments.CreatePaymentRequestDTO;
 import org.park.dtos.payments.ItemPaymentHistoryResponseDTO;
 import org.park.dtos.payments.PaymentDetailResponseDTO;
+import org.park.dtos.payments.PaymentResponseDTO;
 import org.park.model.entities.Payment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ import java.util.UUID;
 public class PaymentsController {
 
     @PostMapping
-    public ResponseEntity<?> createPayment(@RequestBody CreatePaymentRequestDTO createPaymentRequestDTO) {
+    public ResponseEntity<PaymentResponseDTO> createPayment(@RequestBody CreatePaymentRequestDTO createPaymentRequestDTO) {
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 

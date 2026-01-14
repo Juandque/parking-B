@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.park.dtos.enums.EnumOptionDTO;
 import org.park.dtos.fees.FeeRequestDTO;
 import org.park.dtos.fees.FeeResponseDTO;
+import org.park.dtos.fees.FeeSearchParametersRequestDTO;
 import org.park.dtos.fees.ItemFeeDetailResponseDTO;
 import org.park.exceptions.fees.FeeNotFoundException;
 import org.park.model.entities.Fee;
@@ -91,6 +92,18 @@ public class FeeService {
         feeEntity.setFeeType(feeRequestDTO.feeType());
         feeEntity.setVehicleType(feeRequestDTO.vehicleType());
         return feeRepository.save(feeEntity);
+    }
+
+    public Fee getFeeByParameters(FeeSearchParametersRequestDTO requestDTO) {
+        Optional<Fee> optionalFee = feeRepository.getFeeByParameters(requestDTO.vehicleType(),requestDTO.parkingSlotType(),requestDTO.feeType());
+        if (optionalFee.isEmpty()){
+            throw new FeeNotFoundException(requestDTO.vehicleType().toString()+requestDTO.parkingSlotType().toString()+requestDTO.feeType().toString());
+        }
+        return optionalFee.get();
+    }
+
+    public double calculateTotalPrice(){
+
     }
 
     private String formatLabel(String value) {

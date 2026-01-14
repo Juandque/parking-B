@@ -1,6 +1,6 @@
 package org.park.dtos.users;
 
-public record CreateUserRequestDTO (
+public record UserRequestDTO(
         String name,
         String email,
         String phone,

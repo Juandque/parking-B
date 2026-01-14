@@ -3,7 +3,6 @@ package org.park.controllers;
 import lombok.RequiredArgsConstructor;
 import org.park.dtos.enums.EnumOptionDTO;
 import org.park.dtos.vehicles.*;
-import org.park.model.entities.Vehicle;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,7 +30,7 @@ public class VehiclesController {
     }
 
     @PostMapping
-    public ResponseEntity<VehicleResponseDTO> createVehicle(@RequestBody CreateVehicleRequestDTO vehicle){
+    public ResponseEntity<VehicleResponseDTO> createVehicle(@RequestBody VehicleRequestDTO vehicle){
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 

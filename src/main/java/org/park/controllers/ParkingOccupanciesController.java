@@ -24,7 +24,7 @@ public class ParkingOccupanciesController {
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
-    @GetMapping("/{id}/for-update")
+    @GetMapping("/{id}/info-update")
     public ResponseEntity<OccupancyInfoUpdateResponseDTO> getOccupancyBeforeUpdate(@PathVariable UUID id){
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }

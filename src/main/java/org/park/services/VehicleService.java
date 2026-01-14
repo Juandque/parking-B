@@ -1,11 +1,10 @@
 package org.park.services;
 
 import lombok.RequiredArgsConstructor;
-import org.park.dtos.users.CreateUserRequestDTO;
+import org.park.dtos.users.UserRequestDTO;
 import org.park.dtos.users.OwnerSummaryDTO;
 import org.park.dtos.users.UserResponseDTO;
 import org.park.dtos.vehicles.*;
-import org.park.exceptions.users.UserNotFoundException;
 import org.park.exceptions.vehicles.LicensePlateAlreadyRegisteredException;
 import org.park.exceptions.vehicles.VehicleNotFoundException;
 import org.park.model.entities.User;
@@ -15,7 +14,6 @@ import org.park.model.enums.Status;
 import org.park.repositories.VehicleRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -52,14 +50,8 @@ public class VehicleService {
 
     }
 
-    public VehicleResponseDTO createVehicle(CreateVehicleRequestDTO  createVehicleRequestDTO){
-        if (!isLicensePlateAlreadyRegistered(createVehicleRequestDTO.licensePlate())){
-            throw new LicensePlateAlreadyRegisteredException(createVehicleRequestDTO.licensePlate());
-        }
-        Vehicle vehicle = new Vehicle();
-        vehicle.setLicensePlate(createVehicleRequestDTO.licensePlate());
-        vehicle.setVehicleType(createVehicleRequestDTO.vehicleType());
-        vehicleRepository.save(vehicle);
+    public VehicleResponseDTO createVehicle(VehicleRequestDTO vehicleRequestDTO){
+        Vehicle vehicle = createVehicleEntity(vehicleRequestDTO);
         return new VehicleResponseDTO(vehicle.getId(),vehicle.getLicensePlate(),vehicle.getVehicleType());
     }
 
@@ -81,7 +73,7 @@ public class VehicleService {
         Vehicle vehicle = getVehicleOrThrow(changeVehicleOwnerRequestDTO.vehicleId());
         VehicleOwnership oldOwnership = vehicleOwnershipService.getOwnershipByVehicleIdOrThrow(changeVehicleOwnerRequestDTO.vehicleId());
         vehicleOwnershipService.endVehicleOwnership(oldOwnership);
-        User newOwner=userService.getOrCreateUserByDocument(new CreateUserRequestDTO(
+        User newOwner=userService.getOrCreateUserByDocument(new UserRequestDTO(
                 changeVehicleOwnerRequestDTO.ownerName(),
                 changeVehicleOwnerRequestDTO.ownerEmail(),
                 changeVehicleOwnerRequestDTO.ownerPhone(),
@@ -90,7 +82,7 @@ public class VehicleService {
     }
 
     public boolean isLicensePlateAlreadyRegistered(String licensePlate){
-        return vehicleRepository.findByLicensePlate(licensePlate).isPresent();
+        return vehicleRepository.findByLicensePlate(licensePlate).isEmpty();
     }
 
     public Vehicle getVehicleOrThrow(UUID vehicleId){
@@ -99,5 +91,42 @@ public class VehicleService {
             throw new VehicleNotFoundException(vehicleId.toString());
         }
         return optionalVehicle.get();
+    }
+
+    public Vehicle createVehicleEntity(VehicleRequestDTO vehicleRequestDTO){
+        if (isLicensePlateAlreadyRegistered(vehicleRequestDTO.licensePlate())){
+            throw new LicensePlateAlreadyRegisteredException(vehicleRequestDTO.licensePlate());
+        }
+        Vehicle vehicle = new Vehicle();
+        vehicle.setLicensePlate(vehicleRequestDTO.licensePlate());
+        vehicle.setVehicleType(vehicleRequestDTO.vehicleType());
+        vehicle.setStatus(Status.ACTIVE);
+        return vehicleRepository.save(vehicle);
+    }
+
+    public Vehicle getOrCreateVehicleByLicensePlate(VehicleRequestDTO vehicleRequestDTO){
+        return vehicleRepository.findByLicensePlate(vehicleRequestDTO.licensePlate()).orElseGet(() -> createVehicleEntity(vehicleRequestDTO));
+    }
+
+    public Vehicle updateVehicleByLicensePlate(VehicleRequestDTO vehicleRequestDTO){
+        Optional<Vehicle> vehicleOptional = vehicleRepository.findByLicensePlate(vehicleRequestDTO.licensePlate());
+        if(vehicleOptional.isEmpty()){
+            throw new VehicleNotFoundException(vehicleRequestDTO.licensePlate());
+        }
+        Vehicle vehicle = vehicleOptional.get();
+        vehicle.setLicensePlate(vehicleRequestDTO.licensePlate());
+        vehicle.setVehicleType(vehicleRequestDTO.vehicleType());
+        return vehicleRepository.save(vehicle);
+    }
+
+    public Vehicle createOrUpdateVehicle(VehicleRequestDTO vehicleRequestDTO){
+        boolean registered =  isLicensePlateAlreadyRegistered(vehicleRequestDTO.licensePlate());
+        Vehicle vehicle;
+        if(registered){
+            vehicle=updateVehicleByLicensePlate(vehicleRequestDTO);
+        }else {
+            vehicle = createVehicleEntity(vehicleRequestDTO);
+        }
+        return vehicle;
     }
 }

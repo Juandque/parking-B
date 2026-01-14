@@ -6,6 +6,7 @@ import org.park.dtos.parkingSlots.ParkingSlotRequestDTO;
 import org.park.dtos.parkingSlots.ParkingSlotSummaryResponseDTO;
 import org.park.exceptions.parkingSlots.ParkingSlotNotFoundException;
 import org.park.exceptions.parkingSlots.ParkingSlotNumberAlreadyAsignedException;
+import org.park.exceptions.parkingSlots.ParkingSlotOccupiedException;
 import org.park.model.entities.ParkingSlot;
 import org.park.model.enums.ParkingSlotStatus;
 import org.park.model.enums.ParkingSlotType;
@@ -86,7 +87,7 @@ public class ParkingSlotService {
         return parkingSlot.get();
     }
 
-    private void checkParkingSlotNumberAvailable(String number){
+    public void checkParkingSlotNumberAvailable(String number){
         Optional<ParkingSlot> parkingSlotOptional = parkingSlotRepository.findByNumber(number);
         if(parkingSlotOptional.isPresent()){
             throw new ParkingSlotNumberAlreadyAsignedException(number);
@@ -120,6 +121,37 @@ public class ParkingSlotService {
         ParkingSlot parkingSlot = getParkingSlotOrThrow(id);
         parkingSlot.setStatus(ParkingSlotStatus.UNOCCUPIED);
         return parkingSlotRepository.save(parkingSlot);
+    }
+
+    public void isParkingSlotAvailable(String number){
+        Optional<ParkingSlot> parkingSlotOptional = parkingSlotRepository.findByNumber(number);
+        if(parkingSlotOptional.isEmpty()){
+            throw new ParkingSlotNotFoundException(number);
+        }
+        ParkingSlot parkingSlot = parkingSlotOptional.get();
+        if(parkingSlot.getStatus() == ParkingSlotStatus.OUT_OF_SERVICE ||  parkingSlot.getStatus() == ParkingSlotStatus.OCCUPIED){
+            throw new ParkingSlotOccupiedException(number);
+        }
+    }
+
+    public ParkingSlot getParkingSlotByNumber(String number){
+        Optional<ParkingSlot> parkingSlotOptional = parkingSlotRepository.findByNumber(number);
+        if(parkingSlotOptional.isEmpty()){
+            throw new ParkingSlotNotFoundException(number);
+        }
+        return parkingSlotOptional.get();
+    }
+
+    public void occupyParkingSlot(UUID id){
+        ParkingSlot parkingSlot = getParkingSlotOrThrow(id);
+        parkingSlot.setStatus(ParkingSlotStatus.OCCUPIED);
+        parkingSlotRepository.save(parkingSlot);
+    }
+
+    public void unoccupyParkingSlot(UUID id){
+        ParkingSlot parkingSlot = getParkingSlotOrThrow(id);
+        parkingSlot.setStatus(ParkingSlotStatus.UNOCCUPIED);
+        parkingSlotRepository.save(parkingSlot);
     }
 
     private String formatLabel(String value) {

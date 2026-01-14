@@ -1,11 +1,10 @@
 package org.park.controllers;
 
 import lombok.RequiredArgsConstructor;
-import org.park.dtos.users.CreateUserRequestDTO;
+import org.park.dtos.users.UserRequestDTO;
 import org.park.dtos.users.UpdateUserRequestDTO;
 import org.park.dtos.users.UserProfileResponseDTO;
 import org.park.dtos.users.UserResponseDTO;
-import org.park.model.entities.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +17,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UsersController {
     @PostMapping
-    public ResponseEntity<UserResponseDTO> addUser(@RequestBody CreateUserRequestDTO createUserRequestDTO) {
+    public ResponseEntity<UserResponseDTO> addUser(@RequestBody UserRequestDTO userRequestDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(null);
     }
 

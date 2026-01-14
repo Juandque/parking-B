@@ -23,5 +23,6 @@ select vo.vehicle from VehicleOwnership vo where vo.user.id = :id and vo.endDate
 select vo from VehicleOwnership vo where vo.endDate is null
 """)
     List<VehicleOwnership> findByEndDateIsNull();
+    Optional<VehicleOwnership> findByVehicleIdAndUserId(UUID vehicleId, UUID userId);
 
 }

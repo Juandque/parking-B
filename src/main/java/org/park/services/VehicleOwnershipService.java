@@ -49,4 +49,10 @@ public class VehicleOwnershipService {
         newVehicleOwnership.setStartDate(LocalDateTime.now());
         vehicleOwnershipRepository.save(newVehicleOwnership);
     }
+
+    public void findOrCreateVehicleOwnership(User user, Vehicle vehicle){
+        if(vehicleOwnershipRepository.findByVehicleIdAndUserId(vehicle.getId(), user.getId()).isEmpty()){
+            createVehicleOwnership(user,vehicle);
+        }
+    }
 }

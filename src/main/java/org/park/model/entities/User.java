@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.park.model.enums.Status;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,5 +36,8 @@ public class User {
     private Status status;
 
     @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
-    private List<VehicleOwnership> ownershipHistory;
+    private List<VehicleOwnership> ownershipHistory = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<ParkingOccupancy> occupancies = new ArrayList<>();
 }

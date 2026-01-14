@@ -23,20 +23,16 @@ public class UserService {
     private final UserRepository userRepository;
     private final VehicleService vehicleService;
 
-    public UserResponseDTO createUser(CreateUserRequestDTO createUserRequestDTO){
-        if(!isDocumentAlredyRegistered(createUserRequestDTO.document())){
-            throw new DocumentAlreadyRegisteredException(createUserRequestDTO.document());
+    public UserResponseDTO createUser(UserRequestDTO userRequestDTO){
+        if(!isDocumentAlredyRegistered(userRequestDTO.document())){
+            throw new DocumentAlreadyRegisteredException(userRequestDTO.document());
         }
-        User user = createUserEntity(createUserRequestDTO);
+        User user = createUserEntity(userRequestDTO);
         return new UserResponseDTO(user.getId(),user.getName(),user.getEmail(),user.getPhone(),user.getDocument());
     }
 
     public UserResponseDTO updateUser(UpdateUserRequestDTO updateUserRequestDTO){
-        User user = getUserOrThrow(updateUserRequestDTO.id());
-        user.setName(updateUserRequestDTO.name());
-        user.setEmail(updateUserRequestDTO.email());
-        user.setPhone(updateUserRequestDTO.phone());
-        userRepository.save(user);
+        User user = updateUserEntity(updateUserRequestDTO);
         return new UserResponseDTO(user.getId(),user.getName(),user.getEmail(),user.getPhone(),user.getDocument());
     }
 
@@ -87,16 +83,49 @@ public class UserService {
         return userOptional.get();
     }
 
-    public User getOrCreateUserByDocument(CreateUserRequestDTO  createUserRequestDTO){
-        return userRepository.findByDocument(createUserRequestDTO.document()).orElseGet(()-> createUserEntity(createUserRequestDTO));
+    public User getOrCreateUserByDocument(UserRequestDTO userRequestDTO){
+        return userRepository.findByDocument(userRequestDTO.document()).orElseGet(()-> createUserEntity(userRequestDTO));
     }
 
-    private User createUserEntity(CreateUserRequestDTO createUserRequestDTO){
+    private User createUserEntity(UserRequestDTO userRequestDTO){
         User user = new User();
-        user.setName(createUserRequestDTO.name());
-        user.setEmail(createUserRequestDTO.email());
-        user.setPhone(createUserRequestDTO.phone());
-        user.setDocument(createUserRequestDTO.document());
+        user.setName(userRequestDTO.name());
+        user.setEmail(userRequestDTO.email());
+        user.setPhone(userRequestDTO.phone());
+        user.setDocument(userRequestDTO.document());
         return userRepository.save(user);
     }
+
+    public User updateUserEntity(UpdateUserRequestDTO updateUserRequestDTO){
+        User user = getUserOrThrow(updateUserRequestDTO.id());
+        user.setName(updateUserRequestDTO.name());
+        user.setEmail(updateUserRequestDTO.email());
+        user.setPhone(updateUserRequestDTO.phone());
+        return userRepository.save(user);
+    }
+
+    public User updateUserByDocument(UserRequestDTO userRequestDTO){
+        Optional<User> userOptional = userRepository.findByDocument(userRequestDTO.document());
+        if(userOptional.isEmpty()) {
+            throw new UserNotFoundException(userRequestDTO.document());
+        }
+        User user = userOptional.get();
+        user.setName(userRequestDTO.name());
+        user.setEmail(userRequestDTO.email());
+        user.setPhone(userRequestDTO.phone());
+        return userRepository.save(user);
+    }
+
+    public User createOrUpdateUser(UserRequestDTO userRequestDTO){
+        boolean registered = isDocumentAlredyRegistered(userRequestDTO.document());
+        User user;
+        if(registered){
+            user = updateUserByDocument(userRequestDTO);
+        }else {
+            user = createUserEntity(userRequestDTO);
+        }
+        return user;
+    }
+
+
 }
