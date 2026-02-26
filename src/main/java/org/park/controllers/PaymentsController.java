@@ -1,12 +1,10 @@
 package org.park.controllers;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.park.dtos.enums.EnumOptionDTO;
 import org.park.dtos.occupancies.OccupancyDetailResponseDTO;
-import org.park.dtos.payments.CreatePaymentRequestDTO;
-import org.park.dtos.payments.ItemPaymentHistoryResponseDTO;
-import org.park.dtos.payments.PaymentDetailResponseDTO;
-import org.park.dtos.payments.PaymentResponseDTO;
+import org.park.dtos.payments.*;
 import org.park.model.entities.Payment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +19,7 @@ import java.util.UUID;
 public class PaymentsController {
 
     @PostMapping
-    public ResponseEntity<PaymentResponseDTO> createPayment(@RequestBody CreatePaymentRequestDTO createPaymentRequestDTO) {
+    public ResponseEntity<PaymentResponseDTO> createPayment(@Valid @RequestBody CreatePaymentRequestDTO createPaymentRequestDTO) {
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
@@ -51,7 +49,12 @@ public class PaymentsController {
     }
 
     @PutMapping("/{id}/confirm")
-    public ResponseEntity<?> confirmPayment(@PathVariable UUID id) {
+    public ResponseEntity<PaymentDetailResponseDTO> confirmPayment(@PathVariable UUID id) {
+        return ResponseEntity.status(HttpStatus.OK).body(null);
+    }
+
+    @PutMapping("/{id}/cancel")
+    public ResponseEntity<PaymentDetailResponseDTO> cancelPayment(@PathVariable UUID id) {
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 }

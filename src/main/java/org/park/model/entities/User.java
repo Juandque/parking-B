@@ -28,7 +28,7 @@ public class User {
     @Column(name = "phone")
     private String phone;
 
-    @Column(name = "document")
+    @Column(name = "document", unique = true)
     private String document;
 
     @Column(name = "status")

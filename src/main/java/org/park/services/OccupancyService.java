@@ -5,12 +5,14 @@ import org.park.dtos.fees.FeeSearchParametersRequestDTO;
 import org.park.dtos.occupancies.*;
 import org.park.dtos.users.UserRequestDTO;
 import org.park.dtos.vehicles.VehicleRequestDTO;
-import org.park.exceptions.parkingOccupancies.ParkingOccupancyNotFoundException;
+import org.park.exceptions.notFound.EntityNotFound;
 import org.park.model.entities.*;
+import org.park.model.enums.FeeType;
 import org.park.repositories.ParkingOccupancyRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -20,15 +22,20 @@ import java.util.UUID;
 @Transactional
 @RequiredArgsConstructor
 public class OccupancyService {
-    private ParkingSlotService parkingSlotService;
-    private UserService userService;
-    private VehicleService vehicleService;
-    private VehicleOwnershipService vehicleOwnershipService;
-    private FeeService feeService;
-    private ParkingOccupancyRepository parkingOccupancyRepository;
+    private final ParkingSlotService parkingSlotService;
+    private final UserService userService;
+    private final VehicleService vehicleService;
+    private final VehicleOwnershipService vehicleOwnershipService;
+    private final FeeService feeService;
+    private final ParkingOccupancyRepository parkingOccupancyRepository;
+
     //TODO iniciar ocupacion
     public OccupancyResponseDTO createOccupancy(OccupancyRequestDTO requestDTO) {
-        ParkingOccupancy parkingOccupancy = createOccupancyEntity(requestDTO);
+        LocalDateTime endDate = null;
+        if(requestDTO.feeType().equals(FeeType.MONTHLY)){
+            endDate = LocalDateTime.now().plusMonths(1);
+        }
+        ParkingOccupancy parkingOccupancy = createOccupancyEntity(requestDTO, endDate);
         return new  OccupancyResponseDTO(parkingOccupancy.getId(),parkingOccupancy.getVehicle().getId(), parkingOccupancy.getUser().getId(),parkingOccupancy.getParkingSlot().getId(),parkingOccupancy.getOccupationStartDate());
     }
     //TODO actualizar ocupacion
@@ -75,16 +82,26 @@ public class OccupancyService {
                 po.getPayment().getPaymentDate(),po.getPayment().getPaymentStatus(),po.getPayment().getTotalAmount());
     }
     //TODO terminar ocupacion
-    //TODO obtener informacion de ocupacion para el pago
+    public EndOccupancyResponseDTO endOccupancy(UUID id) {
+        ParkingOccupancy po = endParkingOccupancyEntity(id);
+        double totalTime = calculateTotalTime(po);
+        return new EndOccupancyResponseDTO(po.getId(),po.getUser().getId(),po.getVehicle().getId(),po.getParkingSlot().getId(),po.getOccupationStartDate(),po.getOccupationEndDate(),totalTime);
+    }
 
-    public ParkingOccupancy createOccupancyEntity(OccupancyRequestDTO requestDTO) {
+    //TODO obtener informacion de ocupacion para el pago
+    public OccupancyInfoPaymentResponseDTO getOccupancyInfoPayment(UUID id) {
+        ParkingOccupancy po = getParkingOccupancyOrThrow(id);
+        return new OccupancyInfoPaymentResponseDTO(po.getId(),po.getParkingSlot().getId(),po.getUser().getId(),po.getVehicle().getId(),po.getAplicableFee().getId(),po.getPayment().getId(),po.getUser().getName(),po.getUser().getDocument(),po.getUser().getPhone(),po.getUser().getEmail(),po.getVehicle().getLicensePlate(),po.getVehicle().getVehicleType(),po.getFeeType(),po.getParkingSlot().getNumber(),po.getOccupationStartDate(),po.getOccupationEndDate(),po.getAplicableFee().getPrice(),po.getPayment().getTotalAmount());
+    }
+
+    public ParkingOccupancy createOccupancyEntity(OccupancyRequestDTO requestDTO, LocalDateTime endDate) {
         //Verificar si el puesto esta disponible y obtenerlo
         parkingSlotService.isParkingSlotAvailable(requestDTO.parkingSlotNumber());
         ParkingSlot parkingSlot = parkingSlotService.getParkingSlotByNumber(requestDTO.parkingSlotNumber());
         //Crear el vehicle ownership
         User user = userService.getOrCreateUserByDocument(new UserRequestDTO(requestDTO.userName(),requestDTO.userEmail(),requestDTO.userPhone(),requestDTO.userDocument()));
         Vehicle vehicle = vehicleService.getOrCreateVehicleByLicensePlate(new VehicleRequestDTO(requestDTO.licensePlate(),requestDTO.vehicleType()));
-        vehicleOwnershipService.createVehicleOwnership(user, vehicle);
+        vehicleOwnershipService.findOrCreateVehicleOwnership(user, vehicle);
         //Obtener la tarifa
         Fee fee = feeService.getFeeByParameters(new FeeSearchParametersRequestDTO(vehicle.getVehicleType(),parkingSlot.getType(),requestDTO.feeType()));
         //Crear la ocupacion
@@ -93,6 +110,7 @@ public class OccupancyService {
         //Ocupar el puesto
         parkingSlotService.occupyParkingSlot(parkingSlot.getId());
         parkingOccupancy.setOccupationStartDate(LocalDateTime.now());
+        parkingOccupancy.setOccupationEndDate(endDate);
         parkingOccupancy.setUser(user);
         parkingOccupancy.setVehicle(vehicle);
         parkingOccupancy.setAplicableFee(fee);
@@ -122,12 +140,24 @@ public class OccupancyService {
         return parkingOccupancyRepository.save(parkingOccupancy);
     }
 
+    public ParkingOccupancy endParkingOccupancyEntity(UUID id) {
+        ParkingOccupancy parkingOccupancy = getParkingOccupancyOrThrow(id);
+        parkingOccupancy.setOccupationEndDate(LocalDateTime.now());
+        parkingSlotService.unoccupyParkingSlot(parkingOccupancy.getParkingSlot().getId());
+        return parkingOccupancyRepository.save(parkingOccupancy);
+    }
+
     public ParkingOccupancy getParkingOccupancyOrThrow(UUID id){
         Optional<ParkingOccupancy> parkingOccupancy = parkingOccupancyRepository.findById(id);
         if(parkingOccupancy.isEmpty()){
-            throw new ParkingOccupancyNotFoundException(id.toString());
+            throw new EntityNotFound("Parking Occupancy with id: "+id+ " not found");
         }
         return parkingOccupancy.get();
+    }
+
+    public double calculateTotalTime(ParkingOccupancy parkingOccupancy){
+        Duration duration = Duration.between(parkingOccupancy.getOccupationStartDate(),parkingOccupancy.getOccupationEndDate());
+        return duration.toMinutes();
     }
 
 }

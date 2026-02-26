@@ -3,8 +3,8 @@ package org.park.services;
 import lombok.RequiredArgsConstructor;
 import org.park.dtos.users.*;
 import org.park.dtos.vehicles.VehicleResponseDTO;
-import org.park.exceptions.users.DocumentAlreadyRegisteredException;
-import org.park.exceptions.users.UserNotFoundException;
+import org.park.exceptions.alreadyExists.EntityAlreadyExists;
+import org.park.exceptions.notFound.EntityNotFound;
 import org.park.model.entities.User;
 import org.park.model.enums.Status;
 import org.park.repositories.UserRepository;
@@ -21,25 +21,21 @@ import java.util.UUID;
 @Transactional
 public class UserService {
     private final UserRepository userRepository;
-    private final VehicleService vehicleService;
+    private final VehicleOwnershipService vehicleOwnershipService;
 
     public UserResponseDTO createUser(UserRequestDTO userRequestDTO){
-        if(!isDocumentAlredyRegistered(userRequestDTO.document())){
-            throw new DocumentAlreadyRegisteredException(userRequestDTO.document());
-        }
         User user = createUserEntity(userRequestDTO);
         return new UserResponseDTO(user.getId(),user.getName(),user.getEmail(),user.getPhone(),user.getDocument());
     }
 
-    public UserResponseDTO updateUser(UpdateUserRequestDTO updateUserRequestDTO){
-        User user = updateUserEntity(updateUserRequestDTO);
+    public UserResponseDTO updateUser(UserRequestDTO updateUserRequestDTO, UUID id){
+        User user = updateUserEntity(updateUserRequestDTO, id);
         return new UserResponseDTO(user.getId(),user.getName(),user.getEmail(),user.getPhone(),user.getDocument());
     }
 
-    public void deleteUser(UUID id){
-        User user = getUserOrThrow(id);
-        user.setStatus(Status.INACTIVE);
-        userRepository.save(user);
+    public UserResponseDTO deleteUser(UUID id){
+        User user = softDeleteUser(id);
+        return new UserResponseDTO(user.getId(),user.getName(),user.getEmail(),user.getPhone(),user.getDocument());
     }
 
     public UserResponseDTO getUserById(UUID id){
@@ -49,16 +45,12 @@ public class UserService {
 
     public UserProfileResponseDTO  getUserProfile(UUID id){
         User user = getUserOrThrow(id);
-        List<VehicleResponseDTO> vehiclesFound=vehicleService.getVehiclesByUserId(id);
+        List<VehicleResponseDTO> vehiclesFound= vehicleOwnershipService.getActiveVehiclesByUserId(id).stream().map(v -> new VehicleResponseDTO(v.getId(),v.getLicensePlate(),v.getVehicleType())).toList();
         return new UserProfileResponseDTO(user.getId(),user.getName(),user.getDocument(),user.getPhone(),user.getEmail(),vehiclesFound);
     }
 
     public UserResponseDTO getUserByDocument(String document){
-        Optional<User> userOptional = userRepository.findByDocument(document);
-        if (userOptional.isEmpty()) {
-            throw new UserNotFoundException(document);
-        }
-        User user = userOptional.get();
+        User user = getUserEntityByDocument(document);
         return new UserResponseDTO(user.getId(),user.getName(),user.getEmail(),user.getPhone(),user.getDocument());
     }
 
@@ -78,7 +70,15 @@ public class UserService {
     public User getUserOrThrow(UUID id){
         Optional<User> userOptional = userRepository.findById(id);
         if(userOptional.isEmpty()){
-            throw new UserNotFoundException(id.toString());
+            throw new EntityNotFound("User with id: "+id+" not found");
+        }
+        return userOptional.get();
+    }
+
+    public User getUserEntityByDocument(String document){
+        Optional<User> userOptional = userRepository.findByDocument(document);
+        if (userOptional.isEmpty()) {
+            throw new EntityNotFound("User with document: "+document+ " already exists");
         }
         return userOptional.get();
     }
@@ -88,26 +88,36 @@ public class UserService {
     }
 
     private User createUserEntity(UserRequestDTO userRequestDTO){
+        if(isDocumentAlredyRegistered(userRequestDTO.document())){
+            throw new EntityAlreadyExists("User with document: "+userRequestDTO.document()+ " already exists");
+        }
         User user = new User();
         user.setName(userRequestDTO.name());
         user.setEmail(userRequestDTO.email());
         user.setPhone(userRequestDTO.phone());
         user.setDocument(userRequestDTO.document());
+        user.setStatus(Status.ACTIVE);
         return userRepository.save(user);
     }
 
-    public User updateUserEntity(UpdateUserRequestDTO updateUserRequestDTO){
-        User user = getUserOrThrow(updateUserRequestDTO.id());
+    public User updateUserEntity(UserRequestDTO updateUserRequestDTO, UUID id){
+        User user = getUserOrThrow(id);
         user.setName(updateUserRequestDTO.name());
         user.setEmail(updateUserRequestDTO.email());
         user.setPhone(updateUserRequestDTO.phone());
         return userRepository.save(user);
     }
 
+    public User softDeleteUser(UUID id){
+        User user = getUserOrThrow(id);
+        user.setStatus(Status.INACTIVE);
+        return userRepository.save(user);
+    }
+
     public User updateUserByDocument(UserRequestDTO userRequestDTO){
         Optional<User> userOptional = userRepository.findByDocument(userRequestDTO.document());
         if(userOptional.isEmpty()) {
-            throw new UserNotFoundException(userRequestDTO.document());
+            throw new EntityNotFound("User with document: "+userRequestDTO.document()+" not found");
         }
         User user = userOptional.get();
         user.setName(userRequestDTO.name());
@@ -126,6 +136,4 @@ public class UserService {
         }
         return user;
     }
-
-
 }

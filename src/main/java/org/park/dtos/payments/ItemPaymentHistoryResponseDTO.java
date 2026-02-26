@@ -3,6 +3,7 @@ package org.park.dtos.payments;
 import org.park.model.enums.PaymentMethod;
 import org.park.model.enums.PaymentStatus;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 public record ItemPaymentHistoryResponseDTO(
@@ -11,6 +12,6 @@ public record ItemPaymentHistoryResponseDTO(
         String licensePlate,
         PaymentMethod paymentMethod,
         PaymentStatus paymentStatus,
-        double totalPrice
+        BigDecimal totalPrice
 ) {
 }

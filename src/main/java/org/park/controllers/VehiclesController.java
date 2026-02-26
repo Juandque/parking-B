@@ -1,5 +1,6 @@
 package org.park.controllers;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.park.dtos.enums.EnumOptionDTO;
 import org.park.dtos.vehicles.*;
@@ -30,12 +31,12 @@ public class VehiclesController {
     }
 
     @PostMapping
-    public ResponseEntity<VehicleResponseDTO> createVehicle(@RequestBody VehicleRequestDTO vehicle){
+    public ResponseEntity<VehicleResponseDTO> createVehicle(@Valid @RequestBody VehicleRequestDTO vehicle){
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<VehicleResponseDTO> updateVehicle(@RequestBody UpdateVehicleRequestDTO vehicle){
+    public ResponseEntity<VehicleResponseDTO> updateVehicle(@Valid @RequestBody UpdateVehicleRequestDTO vehicle){
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
@@ -45,7 +46,7 @@ public class VehiclesController {
     }
 
     @PutMapping("/change-owner")
-    public ResponseEntity<?> changeVehicleOwner(@RequestBody ChangeVehicleOwnerRequestDTO changeVehicleOwnerRequestDTO){
+    public ResponseEntity<?> changeVehicleOwner(@Valid @RequestBody ChangeVehicleOwnerRequestDTO changeVehicleOwnerRequestDTO){
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 }

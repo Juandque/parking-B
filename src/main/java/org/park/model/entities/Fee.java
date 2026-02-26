@@ -6,6 +6,7 @@ import org.park.model.enums.FeeType;
 import org.park.model.enums.ParkingSlotType;
 import org.park.model.enums.VehicleType;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +38,7 @@ public class Fee {
     private FeeType feeType;
 
     @Column(name = "prices")
-    private double price;
+    private BigDecimal price;
 
     @Column(name = "validity_start_dates")
     private LocalDateTime validityStartDate;

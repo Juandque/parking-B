@@ -3,6 +3,7 @@ package org.park.dtos.occupancies;
 import org.park.model.enums.FeeType;
 import org.park.model.enums.VehicleType;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -23,7 +24,7 @@ public record OccupancyInfoPaymentResponseDTO(
         String parkingSlotNumber,
         LocalDateTime startDate,
         LocalDateTime endDate,
-        double feeApplied,
-        double totalPrice
+        BigDecimal feeApplied,
+        BigDecimal totalPrice
 ) {
 }

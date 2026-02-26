@@ -6,7 +6,7 @@ import org.park.dtos.fees.FeeRequestDTO;
 import org.park.dtos.fees.FeeResponseDTO;
 import org.park.dtos.fees.FeeSearchParametersRequestDTO;
 import org.park.dtos.fees.ItemFeeDetailResponseDTO;
-import org.park.exceptions.fees.FeeNotFoundException;
+import org.park.exceptions.notFound.EntityNotFound;
 import org.park.model.entities.Fee;
 import org.park.model.enums.FeeType;
 import org.park.repositories.FeeRepository;
@@ -70,7 +70,7 @@ public class FeeService {
     public Fee getFeeOrThrow(UUID id) {
         Optional<Fee> optionalFee = feeRepository.findById(id);
         if(optionalFee.isEmpty()){
-            throw new FeeNotFoundException(id.toString());
+            throw new EntityNotFound("Fee with id: "+id+ " not found");
         }
         return optionalFee.get();
     }
@@ -97,13 +97,9 @@ public class FeeService {
     public Fee getFeeByParameters(FeeSearchParametersRequestDTO requestDTO) {
         Optional<Fee> optionalFee = feeRepository.getFeeByParameters(requestDTO.vehicleType(),requestDTO.parkingSlotType(),requestDTO.feeType());
         if (optionalFee.isEmpty()){
-            throw new FeeNotFoundException(requestDTO.vehicleType().toString()+requestDTO.parkingSlotType().toString()+requestDTO.feeType().toString());
+            throw new EntityNotFound("Fee with search parameters: "+requestDTO.vehicleType().toString()+" - "+requestDTO.parkingSlotType().toString()+" - "+requestDTO.feeType().toString()+ " not found");
         }
         return optionalFee.get();
-    }
-
-    public double calculateTotalPrice(){
-
     }
 
     private String formatLabel(String value) {

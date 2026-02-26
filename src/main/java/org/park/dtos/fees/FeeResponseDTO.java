@@ -4,6 +4,7 @@ import org.park.model.enums.FeeType;
 import org.park.model.enums.ParkingSlotType;
 import org.park.model.enums.VehicleType;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 public record FeeResponseDTO(
@@ -11,6 +12,6 @@ public record FeeResponseDTO(
         VehicleType vehicleType,
         ParkingSlotType parkingSlotType,
         FeeType feeType,
-        double price
+        BigDecimal price
 ) {
 }

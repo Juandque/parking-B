@@ -1,10 +1,11 @@
 package org.park.controllers;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.park.dtos.users.UserRequestDTO;
-import org.park.dtos.users.UpdateUserRequestDTO;
 import org.park.dtos.users.UserProfileResponseDTO;
 import org.park.dtos.users.UserResponseDTO;
+import org.park.services.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,38 +17,41 @@ import java.util.UUID;
 @RequestMapping("/users")
 @RequiredArgsConstructor
 public class UsersController {
+
+    private final UserService userService;
     @PostMapping
-    public ResponseEntity<UserResponseDTO> addUser(@RequestBody UserRequestDTO userRequestDTO) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(null);
+    public ResponseEntity<UserResponseDTO> addUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(userRequestDTO));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable UUID id){
-        return ResponseEntity.status(HttpStatus.OK).body(null);
+        return ResponseEntity.status(HttpStatus.OK).body(userService.deleteUser(id));
     }
 
-    @PutMapping
-    public  ResponseEntity<UserResponseDTO> updateUser(@RequestBody UpdateUserRequestDTO updateUserRequestDTO){
-        return ResponseEntity.status(HttpStatus.OK).body(null);
+    @PutMapping("/{id}")
+    public  ResponseEntity<UserResponseDTO> updateUser(@Valid @RequestBody UserRequestDTO updateUserRequestDTO, @PathVariable UUID id){
+        return ResponseEntity.status(HttpStatus.OK).body(userService.updateUser(updateUserRequestDTO, id));
     }
 
     @GetMapping("/{id}")
     public  ResponseEntity<UserResponseDTO> getUserById(@PathVariable UUID id){
-        return ResponseEntity.status(HttpStatus.OK).body(null);
+        return ResponseEntity.status(HttpStatus.OK).body(userService.getUserById(id));
     }
 
     @GetMapping("/{id}/profile")
     public  ResponseEntity<UserProfileResponseDTO> getUserProfile(@PathVariable UUID id){
-        return ResponseEntity.status(HttpStatus.OK).body(null);
+        return ResponseEntity.status(HttpStatus.OK).body(userService.getUserProfile(id));
     }
 
-    @GetMapping("/by-document/{document}")
+    @GetMapping("/{document}/document")
     public ResponseEntity<UserResponseDTO> getUserByDocument(@PathVariable String document){
-        return ResponseEntity.status(HttpStatus.OK).body(null);
+        return ResponseEntity.status(HttpStatus.OK).body(userService.getUserByDocument(document));
     }
 
+    @GetMapping
     public ResponseEntity<List<UserResponseDTO>> getAllUsers(){
-        return ResponseEntity.status(HttpStatus.OK).body(null);
+        return ResponseEntity.status(HttpStatus.OK).body(userService.getAllUsers());
     }
 
 }

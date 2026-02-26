@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.park.model.enums.PaymentMethod;
 import org.park.model.enums.PaymentStatus;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -28,7 +29,7 @@ public class Payment {
     private ParkingOccupancy parkingOccupancy;
 
     @Column(name = "total_amounts")
-    private double totalAmount;
+    private BigDecimal totalAmount;
 
     @Column(name = "payment_dates")
     private LocalDateTime paymentDate;

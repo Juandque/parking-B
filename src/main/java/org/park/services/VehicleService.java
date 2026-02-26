@@ -5,8 +5,8 @@ import org.park.dtos.users.UserRequestDTO;
 import org.park.dtos.users.OwnerSummaryDTO;
 import org.park.dtos.users.UserResponseDTO;
 import org.park.dtos.vehicles.*;
-import org.park.exceptions.vehicles.LicensePlateAlreadyRegisteredException;
-import org.park.exceptions.vehicles.VehicleNotFoundException;
+import org.park.exceptions.alreadyExists.EntityAlreadyExists;
+import org.park.exceptions.notFound.EntityNotFound;
 import org.park.model.entities.User;
 import org.park.model.entities.Vehicle;
 import org.park.model.entities.VehicleOwnership;
@@ -21,16 +21,14 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class VehicleService {
-    private VehicleOwnershipService vehicleOwnershipService;
-    private VehicleRepository vehicleRepository;
-    private UserService userService;
+    private final VehicleOwnershipService vehicleOwnershipService;
+    private final VehicleRepository vehicleRepository;
+    private final UserService userService;
 
     public List<VehicleResponseDTO> getVehiclesByUserId(UUID userId){
         List<Vehicle> vehiclesFound = vehicleOwnershipService.getActiveVehiclesByUserId(userId);
         return vehiclesFound.stream().map(v -> new VehicleResponseDTO(v.getId(),v.getLicensePlate(),v.getVehicleType())).toList();
     }
-
-
 
     public List<ItemVehicleHistoryResponseDTO> getAllVehicles(){
         List<VehicleOwnership> ownershipList= vehicleOwnershipService.findOngoingOwnerships();
@@ -82,20 +80,20 @@ public class VehicleService {
     }
 
     public boolean isLicensePlateAlreadyRegistered(String licensePlate){
-        return vehicleRepository.findByLicensePlate(licensePlate).isEmpty();
+        return vehicleRepository.findByLicensePlate(licensePlate).isPresent();
     }
 
     public Vehicle getVehicleOrThrow(UUID vehicleId){
         Optional<Vehicle> optionalVehicle = vehicleRepository.findById(vehicleId);
         if(optionalVehicle.isEmpty()){
-            throw new VehicleNotFoundException(vehicleId.toString());
+            throw new EntityNotFound("Vehicle with id: "+vehicleId+ " not found");
         }
         return optionalVehicle.get();
     }
 
     public Vehicle createVehicleEntity(VehicleRequestDTO vehicleRequestDTO){
         if (isLicensePlateAlreadyRegistered(vehicleRequestDTO.licensePlate())){
-            throw new LicensePlateAlreadyRegisteredException(vehicleRequestDTO.licensePlate());
+            throw new EntityAlreadyExists("Vehicle with license plate: "+vehicleRequestDTO.licensePlate()+" already exists");
         }
         Vehicle vehicle = new Vehicle();
         vehicle.setLicensePlate(vehicleRequestDTO.licensePlate());
@@ -111,7 +109,7 @@ public class VehicleService {
     public Vehicle updateVehicleByLicensePlate(VehicleRequestDTO vehicleRequestDTO){
         Optional<Vehicle> vehicleOptional = vehicleRepository.findByLicensePlate(vehicleRequestDTO.licensePlate());
         if(vehicleOptional.isEmpty()){
-            throw new VehicleNotFoundException(vehicleRequestDTO.licensePlate());
+            throw new EntityNotFound("Vehicle with license plate: "+vehicleRequestDTO.licensePlate()+" not found");
         }
         Vehicle vehicle = vehicleOptional.get();
         vehicle.setLicensePlate(vehicleRequestDTO.licensePlate());

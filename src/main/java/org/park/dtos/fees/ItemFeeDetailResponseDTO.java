@@ -4,6 +4,7 @@ import org.park.model.enums.FeeType;
 import org.park.model.enums.ParkingSlotType;
 import org.park.model.enums.VehicleType;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -12,7 +13,7 @@ public record ItemFeeDetailResponseDTO(
         VehicleType vehicleType,
         ParkingSlotType parkingSlotType,
         FeeType feeType,
-        double price,
+        BigDecimal price,
         LocalDateTime validityStartDate,
         LocalDateTime validityEndDate
 ) {

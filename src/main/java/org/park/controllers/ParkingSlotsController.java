@@ -1,5 +1,6 @@
 package org.park.controllers;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.park.dtos.enums.EnumOptionDTO;
 import org.park.dtos.parkingSlots.ParkingSlotRequestDTO;
@@ -37,12 +38,12 @@ public class ParkingSlotsController {
     }
 
     @PostMapping
-    public ResponseEntity<ParkingSlotSummaryResponseDTO> createParkingSlot(@RequestBody ParkingSlotRequestDTO parkingSlotRequestDTO){
+    public ResponseEntity<ParkingSlotSummaryResponseDTO> createParkingSlot(@Valid @RequestBody ParkingSlotRequestDTO parkingSlotRequestDTO){
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ParkingSlotSummaryResponseDTO> updateParkingSlot(@RequestBody ParkingSlotRequestDTO parkingSlotRequestDTO, @PathVariable UUID id){
+    public ResponseEntity<ParkingSlotSummaryResponseDTO> updateParkingSlot(@Valid @RequestBody ParkingSlotRequestDTO parkingSlotRequestDTO, @PathVariable UUID id){
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 

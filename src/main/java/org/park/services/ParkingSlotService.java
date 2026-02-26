@@ -4,9 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.park.dtos.enums.EnumOptionDTO;
 import org.park.dtos.parkingSlots.ParkingSlotRequestDTO;
 import org.park.dtos.parkingSlots.ParkingSlotSummaryResponseDTO;
-import org.park.exceptions.parkingSlots.ParkingSlotNotFoundException;
-import org.park.exceptions.parkingSlots.ParkingSlotNumberAlreadyAsignedException;
-import org.park.exceptions.parkingSlots.ParkingSlotOccupiedException;
+import org.park.exceptions.notFound.EntityNotFound;
+import org.park.exceptions.differentStatusExpected.ParkingSlotOccupiedException;
 import org.park.model.entities.ParkingSlot;
 import org.park.model.enums.ParkingSlotStatus;
 import org.park.model.enums.ParkingSlotType;
@@ -18,7 +17,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -82,7 +80,7 @@ public class ParkingSlotService {
     public ParkingSlot getParkingSlotOrThrow(UUID id){
         Optional<ParkingSlot> parkingSlot = parkingSlotRepository.findById(id);
         if(parkingSlot.isEmpty()){
-            throw new ParkingSlotNotFoundException(id.toString());
+            throw new EntityNotFound(id.toString());
         }
         return parkingSlot.get();
     }
@@ -90,7 +88,7 @@ public class ParkingSlotService {
     public void checkParkingSlotNumberAvailable(String number){
         Optional<ParkingSlot> parkingSlotOptional = parkingSlotRepository.findByNumber(number);
         if(parkingSlotOptional.isPresent()){
-            throw new ParkingSlotNumberAlreadyAsignedException(number);
+            throw new ParkingSlotOccupiedException(number);
         }
     }
 
@@ -126,7 +124,7 @@ public class ParkingSlotService {
     public void isParkingSlotAvailable(String number){
         Optional<ParkingSlot> parkingSlotOptional = parkingSlotRepository.findByNumber(number);
         if(parkingSlotOptional.isEmpty()){
-            throw new ParkingSlotNotFoundException(number);
+            throw new EntityNotFound("Parking Slot with number: "+number+" not found");
         }
         ParkingSlot parkingSlot = parkingSlotOptional.get();
         if(parkingSlot.getStatus() == ParkingSlotStatus.OUT_OF_SERVICE ||  parkingSlot.getStatus() == ParkingSlotStatus.OCCUPIED){
@@ -137,7 +135,7 @@ public class ParkingSlotService {
     public ParkingSlot getParkingSlotByNumber(String number){
         Optional<ParkingSlot> parkingSlotOptional = parkingSlotRepository.findByNumber(number);
         if(parkingSlotOptional.isEmpty()){
-            throw new ParkingSlotNotFoundException(number);
+            throw new EntityNotFound("Parking Slot with number: "+number+" not found");
         }
         return parkingSlotOptional.get();
     }

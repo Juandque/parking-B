@@ -5,6 +5,7 @@ import org.park.model.enums.PaymentMethod;
 import org.park.model.enums.PaymentStatus;
 import org.park.model.enums.VehicleType;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -25,10 +26,10 @@ public record OccupancyDetailResponseDTO(
         String parkingSlotNumber,
         LocalDateTime startDate,
         LocalDateTime endDate,
-        double feeApplied,
+        BigDecimal feeApplied,
         PaymentMethod paymentMethod,
         LocalDateTime paymentDate,
         PaymentStatus paymentStatus,
-        double totalPrice
+        BigDecimal totalPrice
 ) {
 }

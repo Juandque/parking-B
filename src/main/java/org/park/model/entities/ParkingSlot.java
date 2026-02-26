@@ -24,7 +24,7 @@ public class ParkingSlot {
     @Column(name = "id")
     private UUID id;
 
-    @Column(name = "slot_number")
+    @Column(name = "slot_number", unique = true)
     private String number;
 
     @Column(name = "type")

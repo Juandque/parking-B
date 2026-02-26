@@ -1,5 +1,6 @@
 package org.park.controllers;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.park.dtos.occupancies.*;
 import org.springframework.http.HttpStatus;
@@ -15,12 +16,12 @@ import java.util.UUID;
 public class ParkingOccupanciesController {
 
     @PostMapping("/start")
-    public ResponseEntity<OccupancyResponseDTO> startOccupancy(@RequestBody OccupancyRequestDTO occupancyRequestDTO) {
+    public ResponseEntity<OccupancyResponseDTO> startOccupancy(@Valid @RequestBody OccupancyRequestDTO occupancyRequestDTO) {
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
     @PutMapping("/{id}/update")
-    public ResponseEntity<OccupancyResponseDTO> updateOccupancy(@PathVariable UUID id, @RequestBody OccupancyRequestDTO occupancyRequestDTO) {
+    public ResponseEntity<OccupancyResponseDTO> updateOccupancy(@PathVariable UUID id,@Valid @RequestBody OccupancyRequestDTO occupancyRequestDTO) {
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
@@ -40,16 +41,16 @@ public class ParkingOccupanciesController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<OccupancyDetailResponseDTO> getOccupancy(@PathVariable UUID id){
+    public ResponseEntity<OccupancyDetailResponseDTO> getOccupancy(@Valid @PathVariable UUID id){
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
     @PutMapping("/{id}/end")
-    public ResponseEntity<EndOccupancyResponseDTO> endOccupancy(@PathVariable UUID id){
+    public ResponseEntity<EndOccupancyResponseDTO> endOccupancy(@Valid @PathVariable UUID id){
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
-    @GetMapping("/{id}/for-payment")
+    @GetMapping("/{id}/info-payment")
     public ResponseEntity<OccupancyInfoPaymentResponseDTO> getOccupancyInfoForPayment(@PathVariable UUID id){
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }

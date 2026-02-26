@@ -1,7 +1,7 @@
 package org.park.services;
 
 import lombok.RequiredArgsConstructor;
-import org.park.exceptions.vehiclesOwnerships.OwnershipNotFoundException;
+import org.park.exceptions.notFound.EntityNotFound;
 import org.park.model.entities.User;
 import org.park.model.entities.Vehicle;
 import org.park.model.entities.VehicleOwnership;
@@ -32,7 +32,7 @@ public class VehicleOwnershipService {
     public VehicleOwnership getOwnershipByVehicleIdOrThrow(UUID id){
         Optional<VehicleOwnership> ownershipOptional = vehicleOwnershipRepository.findByVehicleIdAndEndDateIsNull(id);
         if(ownershipOptional.isEmpty()){
-            throw new OwnershipNotFoundException(id.toString());
+            throw new EntityNotFound("Vehicle ownership with id: "+id+" not found");
         }
         return ownershipOptional.get();
     }
