@@ -54,17 +54,13 @@ public class VehicleService {
     }
 
     public VehicleResponseDTO updateVehicle(UpdateVehicleRequestDTO updateVehicleRequestDTO){
-        Vehicle vehicle = getVehicleOrThrow(updateVehicleRequestDTO.id());
-        vehicle.setLicensePlate(updateVehicleRequestDTO.licensePlate());
-        vehicle.setVehicleType(updateVehicleRequestDTO.vehicleType());
-        vehicleRepository.save(vehicle);
+        Vehicle vehicle = updateVehicleEntity(updateVehicleRequestDTO);
         return new VehicleResponseDTO(vehicle.getId(),vehicle.getLicensePlate(),vehicle.getVehicleType());
     }
 
-    public void deleteVehicle(UUID vehicleId){
-        Vehicle vehicle = getVehicleOrThrow(vehicleId);
-        vehicle.setStatus(Status.INACTIVE);
-        vehicleRepository.save(vehicle);
+    public VehicleResponseDTO deleteVehicle(UUID vehicleId){
+        Vehicle vehicle = softDeleteVehicle(vehicleId);
+        return new  VehicleResponseDTO(vehicle.getId(),vehicle.getLicensePlate(),vehicle.getVehicleType());
     }
 
     public void changeVehicleOwner(ChangeVehicleOwnerRequestDTO changeVehicleOwnerRequestDTO){
@@ -99,6 +95,19 @@ public class VehicleService {
         vehicle.setLicensePlate(vehicleRequestDTO.licensePlate());
         vehicle.setVehicleType(vehicleRequestDTO.vehicleType());
         vehicle.setStatus(Status.ACTIVE);
+        return vehicleRepository.save(vehicle);
+    }
+
+    public Vehicle updateVehicleEntity(UpdateVehicleRequestDTO updateVehicleRequestDTO){
+        Vehicle vehicle = getVehicleOrThrow(updateVehicleRequestDTO.id());
+        vehicle.setLicensePlate(updateVehicleRequestDTO.licensePlate());
+        vehicle.setVehicleType(updateVehicleRequestDTO.vehicleType());
+        return vehicleRepository.save(vehicle);
+    }
+
+    public Vehicle softDeleteVehicle(UUID vehicleId){
+        Vehicle vehicle = getVehicleOrThrow(vehicleId);
+        vehicle.setStatus(Status.INACTIVE);
         return vehicleRepository.save(vehicle);
     }
 

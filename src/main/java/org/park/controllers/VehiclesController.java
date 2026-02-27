@@ -41,7 +41,7 @@ public class VehiclesController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteVehicle(@PathVariable UUID id){
+    public ResponseEntity<VehicleResponseDTO> deleteVehicle(@PathVariable UUID id){
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
