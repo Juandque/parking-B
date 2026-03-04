@@ -71,9 +71,9 @@ public class ParkingSlotService {
     }
 
     //TODO eliminar puesto
-    public void deleteParkingSlot(UUID id){
-        ParkingSlot parkingSlot = getParkingSlotOrThrow(id);
-        parkingSlotRepository.delete(parkingSlot);
+    public ParkingSlotSummaryResponseDTO deleteParkingSlot(UUID id){
+        ParkingSlot parkingSlot = softDeleteParkingSlot(id);
+        return new ParkingSlotSummaryResponseDTO(parkingSlot.getId(),parkingSlot.getNumber(),parkingSlot.getType(),parkingSlot.getStatus());
     }
     //TODO obtener el estado genereal de los puestos
 
@@ -106,6 +106,12 @@ public class ParkingSlotService {
         ParkingSlot parkingSlot = getParkingSlotOrThrow(id);
         parkingSlot.setNumber(parkingSlotRequestDTO.number());
         parkingSlot.setType(parkingSlotRequestDTO.type());
+        return parkingSlotRepository.save(parkingSlot);
+    }
+
+    public ParkingSlot softDeleteParkingSlot(UUID id){
+        ParkingSlot parkingSlot = getParkingSlotOrThrow(id);
+        parkingSlot.setStatus(ParkingSlotStatus.INACTIVE);
         return parkingSlotRepository.save(parkingSlot);
     }
 

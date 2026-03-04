@@ -5,6 +5,7 @@ import com.lowagie.text.pdf.Barcode128;
 import com.lowagie.text.pdf.PdfContentByte;
 import com.lowagie.text.pdf.PdfWriter;
 import org.park.model.entities.ParkingOccupancy;
+import org.park.model.entities.Payment;
 import org.springframework.stereotype.Service;
 import java.io.ByteArrayOutputStream;
 
@@ -53,7 +54,42 @@ public class TicketService {
         return byteArrayOutputStream.toByteArray();
     }
 
-    public Barcode128 generateBarcode(ParkingOccupancy parkingOccupancy){
+    public byte[] generatePaymentTicket(Payment payment){
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        Rectangle pageSize = new  Rectangle(164,500);
+        Document document = new Document(pageSize, 10,10,10,10);
+        ParkingOccupancy parkingOccupancy = payment.getParkingOccupancy();
+        try{
+            PdfWriter writer=PdfWriter.getInstance(document, byteArrayOutputStream);
+            document.open();
+
+            Font boldFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12);
+            Font normalFont = FontFactory.getFont(FontFactory.HELVETICA, 10);
+
+            document.add(new Paragraph("--------------------------------", normalFont));
+            document.add(new Paragraph("TICKET DE PAGO", boldFont));
+            document.add(new Paragraph("ID: " + parkingOccupancy.getId(), normalFont));
+            document.add(new Paragraph("Placa: " + parkingOccupancy.getVehicle().getLicensePlate().toUpperCase(), boldFont));
+            document.add(new Paragraph("Puesto: " + parkingOccupancy.getParkingSlot().getNumber(), normalFont));
+
+            document.add(new Paragraph("Fecha Entrada: " + parkingOccupancy.getOccupationStartDate(), normalFont));
+            document.add(new Paragraph("Fecha Salida: " + parkingOccupancy.getOccupationEndDate(), normalFont));
+            document.add(new Paragraph("--------------------------------", normalFont));
+
+            document.add(new Paragraph("Valor: " + payment.getTotalAmount(), boldFont));
+            document.add(new Paragraph("Fecha: " + payment.getPaymentDate(), normalFont));
+            document.add(new Paragraph("Método de Pago" + payment.getPaymentMethod(), boldFont));
+
+            Paragraph footer = new Paragraph("Gracias por elegir a\nParking MiJuli.", normalFont);
+            footer.setAlignment(Element.ALIGN_CENTER);
+            document.add(footer);
+        }catch(DocumentException e){
+            e.printStackTrace();
+        }
+        return byteArrayOutputStream.toByteArray();
+    }
+
+    private Barcode128 generateBarcode(ParkingOccupancy parkingOccupancy){
         Barcode128 barcode128 = new Barcode128();
         barcode128.setCode(parkingOccupancy.getId().toString());
         barcode128.setCodeType(Barcode128.CODE128);

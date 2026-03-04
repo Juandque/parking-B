@@ -1,6 +1,7 @@
 package org.park.services;
 
 import lombok.RequiredArgsConstructor;
+import org.park.dtos.enums.EnumOptionDTO;
 import org.park.dtos.users.UserRequestDTO;
 import org.park.dtos.users.OwnerSummaryDTO;
 import org.park.dtos.users.UserResponseDTO;
@@ -11,9 +12,11 @@ import org.park.model.entities.User;
 import org.park.model.entities.Vehicle;
 import org.park.model.entities.VehicleOwnership;
 import org.park.model.enums.Status;
+import org.park.model.enums.VehicleType;
 import org.park.repositories.VehicleRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -73,6 +76,10 @@ public class VehicleService {
                 changeVehicleOwnerRequestDTO.ownerPhone(),
                 changeVehicleOwnerRequestDTO.ownerDocument()));
         vehicleOwnershipService.createVehicleOwnership(newOwner, vehicle);
+    }
+
+    public List<EnumOptionDTO> getAllVehicleTypes(){
+        return Arrays.stream(VehicleType.values()).map(vt -> new EnumOptionDTO(vt.name(), formatLabel(vt.name()))).toList();
     }
 
     public boolean isLicensePlateAlreadyRegistered(String licensePlate){
@@ -135,5 +142,8 @@ public class VehicleService {
             vehicle = createVehicleEntity(vehicleRequestDTO);
         }
         return vehicle;
+    }
+    private String formatLabel(String value) {
+        return value.replace("_", " ").toLowerCase();
     }
 }

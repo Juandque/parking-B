@@ -40,14 +40,12 @@ public class FeesController {
 
     @PostMapping
     public ResponseEntity<FeeResponseDTO> createFee(@Valid @RequestBody FeeRequestDTO feeRequestDTO) {
-        FeeResponseDTO responseDTO = feeService.createFee(feeRequestDTO);
-        return ResponseEntity.status(HttpStatus.OK).body(responseDTO);
+        return ResponseEntity.status(HttpStatus.OK).body(feeService.createFee(feeRequestDTO));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<FeeResponseDTO> updateFee(@PathVariable UUID id, @Valid @RequestBody FeeRequestDTO feeRequestDTO) {
-        FeeResponseDTO responseDTO = feeService.updateFee(id, feeRequestDTO);
-        return ResponseEntity.status(HttpStatus.OK).body(responseDTO);
+        return ResponseEntity.status(HttpStatus.OK).body(feeService.updateFee(id, feeRequestDTO));
     }
 
     @PutMapping("/{id}/activate")

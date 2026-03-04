@@ -28,6 +28,7 @@ public class OccupancyService {
     private final VehicleOwnershipService vehicleOwnershipService;
     private final FeeService feeService;
     private final ParkingOccupancyRepository parkingOccupancyRepository;
+    private  final TicketService ticketService;
 
     //TODO iniciar ocupacion
     public OccupancyResponseDTO createOccupancy(OccupancyRequestDTO requestDTO) {
@@ -36,12 +37,14 @@ public class OccupancyService {
             endDate = LocalDateTime.now().plusMonths(1);
         }
         ParkingOccupancy parkingOccupancy = createOccupancyEntity(requestDTO, endDate);
-        return new  OccupancyResponseDTO(parkingOccupancy.getId(),parkingOccupancy.getVehicle().getId(), parkingOccupancy.getUser().getId(),parkingOccupancy.getParkingSlot().getId(),parkingOccupancy.getOccupationStartDate());
+        byte[] pdfContent = ticketService.generateEntryTicket(parkingOccupancy);
+        return new  OccupancyResponseDTO(parkingOccupancy.getId(),parkingOccupancy.getVehicle().getId(), parkingOccupancy.getUser().getId(),parkingOccupancy.getParkingSlot().getId(),parkingOccupancy.getOccupationStartDate(), pdfContent);
     }
     //TODO actualizar ocupacion
     public OccupancyResponseDTO updateOccupancy(UUID id, OccupancyRequestDTO requestDTO) {
         ParkingOccupancy parkingOccupancy = updateOccupancyEntity(id, requestDTO);
-        return new OccupancyResponseDTO(parkingOccupancy.getId(),parkingOccupancy.getVehicle().getId(), parkingOccupancy.getUser().getId(),parkingOccupancy.getParkingSlot().getId(),parkingOccupancy.getOccupationStartDate());
+        byte[] pdfContent = ticketService.generateEntryTicket(parkingOccupancy);
+        return new OccupancyResponseDTO(parkingOccupancy.getId(),parkingOccupancy.getVehicle().getId(), parkingOccupancy.getUser().getId(),parkingOccupancy.getParkingSlot().getId(),parkingOccupancy.getOccupationStartDate(),  pdfContent);
     }
     //TODO obtener ocupacion antes de actualizar
     public OccupancyInfoUpdateResponseDTO  getOccupancyBeforeUpdate(UUID id) {
@@ -52,7 +55,7 @@ public class OccupancyService {
                 parkingOccupancy.getVehicle().getLicensePlate(), parkingOccupancy.getVehicle().getVehicleType(),parkingOccupancy.getFeeType(),parkingOccupancy.getParkingSlot().getNumber());
     }
     //TODO obtener ocupaciones activas
-    public List<ItemActiveOccupanciesResponseDTO> getActiveOccupancies(UUID id) {
+    public List<ItemActiveOccupanciesResponseDTO> getActiveOccupancies() {
         List<ParkingOccupancy> occupanciesFound = parkingOccupancyRepository.findByOccupationEndDateNull();
         return occupanciesFound.stream().map(
                 po -> new ItemActiveOccupanciesResponseDTO(

@@ -8,6 +8,7 @@ public record OccupancyResponseDTO(
         UUID vehicleId,
         UUID userId,
         UUID parkingSlotId,
-        LocalDateTime startDate
+        LocalDateTime startDate,
+        byte[] pdfContent
 ) {
 }

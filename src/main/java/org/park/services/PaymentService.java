@@ -30,6 +30,7 @@ public class PaymentService {
     private final OccupancyService occupancyService;
     private final PaymentRepository paymentRepository;
     private final PaymentCalculatorService paymentCalculatorService;
+    private final TicketService ticketService;
     //TODO crear pago
     public PaymentResponseDTO createPayment(CreatePaymentRequestDTO createPaymentRequestDTO) {
         Payment payment = createPaymentEntity(createPaymentRequestDTO);
@@ -45,7 +46,7 @@ public class PaymentService {
         return Arrays.stream(PaymentStatus.values()).map(ps -> new EnumOptionDTO(ps.name(),formatLabel(ps.name()))).toList();
     }
     //TODO obtener metodos de pago
-    public List<EnumOptionDTO> getAllPaymentsOptions(){
+    public List<EnumOptionDTO> getAllPaymentsMethods(){
         return Arrays.stream(PaymentMethod.values()).map(pm -> new EnumOptionDTO(pm.name(),formatLabel(pm.name()))).toList();
     }
     //TODO obtener un pago por id
@@ -59,9 +60,10 @@ public class PaymentService {
         return new PaymentDetailResponseDTO(payment.getId(),payment.getParkingOccupancy().getUser().getName(), payment.getParkingOccupancy().getVehicle().getLicensePlate(),payment.getPaymentMethod(),payment.getPaymentStatus(),payment.getTotalAmount());
     }
     //TODO confirmar pago
-    public PaymentDetailResponseDTO confirmPayment(UUID id) {
+    public PaymentConfirmedResponseDTO confirmPayment(UUID id) {
         Payment payment = confirmPaymentEntity(id);
-        return new PaymentDetailResponseDTO(payment.getId(),payment.getParkingOccupancy().getUser().getName(), payment.getParkingOccupancy().getVehicle().getLicensePlate(),payment.getPaymentMethod(),payment.getPaymentStatus(),payment.getTotalAmount());
+        byte[] pdfContent = ticketService.generatePaymentTicket(payment);
+        return new PaymentConfirmedResponseDTO(new PaymentDetailResponseDTO(payment.getId(),payment.getParkingOccupancy().getUser().getName(), payment.getParkingOccupancy().getVehicle().getLicensePlate(),payment.getPaymentMethod(),payment.getPaymentStatus(),payment.getTotalAmount()), pdfContent);
     }
     //TODO cancelar pago
     public PaymentDetailResponseDTO cancelPayment(UUID id) {
