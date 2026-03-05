@@ -66,16 +66,21 @@ public class VehicleService {
         return new  VehicleResponseDTO(vehicle.getId(),vehicle.getLicensePlate(),vehicle.getVehicleType());
     }
 
-    public void changeVehicleOwner(ChangeVehicleOwnerRequestDTO changeVehicleOwnerRequestDTO){
+    public VehicleProfileResponseDTO changeVehicleOwner(ChangeVehicleOwnerRequestDTO changeVehicleOwnerRequestDTO){
         Vehicle vehicle = getVehicleOrThrow(changeVehicleOwnerRequestDTO.vehicleId());
         VehicleOwnership oldOwnership = vehicleOwnershipService.getOwnershipByVehicleIdOrThrow(changeVehicleOwnerRequestDTO.vehicleId());
+        if(oldOwnership.getUser().getDocument().equals(changeVehicleOwnerRequestDTO.ownerDocument())){
+            throw new EntityAlreadyExists("Ownership between user with docuement: " +changeVehicleOwnerRequestDTO.ownerDocument() +" vehicle with license plate: "+vehicle.getLicensePlate()+" already exists");
+        }
         vehicleOwnershipService.endVehicleOwnership(oldOwnership);
         User newOwner=userService.getOrCreateUserByDocument(new UserRequestDTO(
                 changeVehicleOwnerRequestDTO.ownerName(),
                 changeVehicleOwnerRequestDTO.ownerEmail(),
                 changeVehicleOwnerRequestDTO.ownerPhone(),
                 changeVehicleOwnerRequestDTO.ownerDocument()));
-        vehicleOwnershipService.createVehicleOwnership(newOwner, vehicle);
+        VehicleOwnership vo=vehicleOwnershipService.createVehicleOwnership(newOwner, vehicle);
+        return new VehicleProfileResponseDTO(new VehicleResponseDTO(vo.getVehicle().getId(),vo.getVehicle().getLicensePlate(),vo.getVehicle().getVehicleType()),
+                new UserResponseDTO(vo.getUser().getId(),vo.getUser().getName(),vo.getUser().getEmail(),vo.getUser().getPhone(),vo.getUser().getDocument()));
     }
 
     public List<EnumOptionDTO> getAllVehicleTypes(){

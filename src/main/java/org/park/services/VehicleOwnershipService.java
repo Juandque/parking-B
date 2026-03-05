@@ -42,12 +42,12 @@ public class VehicleOwnershipService {
         vehicleOwnershipRepository.save(vehicleOwnership);
     }
 
-    public void createVehicleOwnership(User user, Vehicle  vehicle){
+    public VehicleOwnership createVehicleOwnership(User user, Vehicle  vehicle){
         VehicleOwnership newVehicleOwnership = new VehicleOwnership();
         newVehicleOwnership.setUser(user);
         newVehicleOwnership.setVehicle(vehicle);
         newVehicleOwnership.setStartDate(LocalDateTime.now());
-        vehicleOwnershipRepository.save(newVehicleOwnership);
+        return vehicleOwnershipRepository.save(newVehicleOwnership);
     }
 
     public void findOrCreateVehicleOwnership(User user, Vehicle vehicle){

@@ -124,19 +124,21 @@ public class OccupancyService {
     public ParkingOccupancy updateOccupancyEntity(UUID id,OccupancyRequestDTO requestDTO) {
         ParkingOccupancy parkingOccupancy = getParkingOccupancyOrThrow(id);
         //Verificar si el puesto esta disponible
-        parkingSlotService.isParkingSlotAvailable(requestDTO.parkingSlotNumber());
-        //Desocupar puesto
-        parkingSlotService.unoccupyParkingSlot(parkingOccupancy.getParkingSlot().getId());
-        //Obtener el nuevo puesto
-        ParkingSlot parkingSlot = parkingSlotService.getParkingSlotByNumber(requestDTO.parkingSlotNumber());
-        parkingOccupancy.setParkingSlot(parkingSlot);
-        //Ocupar el puesto
-        parkingSlotService.occupyParkingSlot(parkingSlot.getId());
+        if(! parkingOccupancy.getParkingSlot().getNumber().equals(requestDTO.parkingSlotNumber())) {
+            parkingSlotService.isParkingSlotAvailable(requestDTO.parkingSlotNumber());
+            //Desocupar puesto
+            parkingSlotService.unoccupyParkingSlot(parkingOccupancy.getParkingSlot().getId());
+            //Obtener el nuevo puesto
+            ParkingSlot parkingSlot = parkingSlotService.getParkingSlotByNumber(requestDTO.parkingSlotNumber());
+            parkingOccupancy.setParkingSlot(parkingSlot);
+            //Ocupar el puesto
+            parkingSlotService.occupyParkingSlot(parkingSlot.getId());
+            parkingOccupancy.setParkingSlot(parkingSlot);
+        }
         //Actualizar o crear usuario, vehiculo y ownership
         User user = userService.createOrUpdateUser(new UserRequestDTO(requestDTO.userName(),requestDTO.userEmail(),requestDTO.userPhone(),requestDTO.userDocument()));
         Vehicle vehicle = vehicleService.createOrUpdateVehicle(new VehicleRequestDTO(requestDTO.licensePlate(),requestDTO.vehicleType()));
         vehicleOwnershipService.findOrCreateVehicleOwnership(user, vehicle);
-        parkingOccupancy.setParkingSlot(parkingSlot);
         parkingOccupancy.setVehicle(vehicle);
         parkingOccupancy.setUser(user);
         parkingOccupancy.setFeeType(requestDTO.feeType());

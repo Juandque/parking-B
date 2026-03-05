@@ -49,8 +49,7 @@ public class VehiclesController {
     }
 
     @PutMapping("/change-owner")
-    public ResponseEntity<?> changeVehicleOwner(@Valid @RequestBody ChangeVehicleOwnerRequestDTO changeVehicleOwnerRequestDTO){
-        vehicleService.changeVehicleOwner(changeVehicleOwnerRequestDTO);
-        return ResponseEntity.status(HttpStatus.OK).body(null);
+    public ResponseEntity<VehicleProfileResponseDTO> changeVehicleOwner(@Valid @RequestBody ChangeVehicleOwnerRequestDTO changeVehicleOwnerRequestDTO){
+        return ResponseEntity.status(HttpStatus.OK).body(vehicleService.changeVehicleOwner(changeVehicleOwnerRequestDTO));
     }
 }
