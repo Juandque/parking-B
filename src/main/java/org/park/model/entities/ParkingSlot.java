@@ -28,9 +28,11 @@ public class ParkingSlot {
     private String number;
 
     @Column(name = "type")
+    @Enumerated(EnumType.STRING)
     private ParkingSlotType type;
 
     @Column(name = "status")
+    @Enumerated(EnumType.STRING)
     private ParkingSlotStatus status;
 
     @OneToMany(mappedBy = "parkingSlot", fetch = FetchType.LAZY)
