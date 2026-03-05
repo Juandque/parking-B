@@ -5,6 +5,7 @@ import org.park.dtos.fees.FeeSearchParametersRequestDTO;
 import org.park.dtos.occupancies.*;
 import org.park.dtos.users.UserRequestDTO;
 import org.park.dtos.vehicles.VehicleRequestDTO;
+import org.park.exceptions.differentStatusExpected.ParkingOccupancyAlreadyEnded;
 import org.park.exceptions.notFound.EntityNotFound;
 import org.park.model.entities.*;
 import org.park.model.enums.FeeType;
@@ -147,6 +148,9 @@ public class OccupancyService {
 
     public ParkingOccupancy endParkingOccupancyEntity(UUID id) {
         ParkingOccupancy parkingOccupancy = getParkingOccupancyOrThrow(id);
+        if(parkingOccupancy.getOccupationEndDate() != null) {
+            throw new ParkingOccupancyAlreadyEnded("Parking Occupancy with id: "+parkingOccupancy.getId()+" already ended");
+        }
         parkingOccupancy.setOccupationEndDate(LocalDateTime.now());
         parkingSlotService.unoccupyParkingSlot(parkingOccupancy.getParkingSlot().getId());
         return parkingOccupancyRepository.save(parkingOccupancy);
