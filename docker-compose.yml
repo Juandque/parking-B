@@ -1,6 +1,24 @@
 version: '3.9'
 
 services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: parking-dev
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app
+      - gradle-cache:/root/.gradle
+    environment:
+      - SPRING_DEVTOOLS_RESTART_ENABLED=true
+    env_file:
+      - .env
+    command: ./gradlew bootRun --no-daemon
+
   postgres:
     image: postgres:16
     container_name: parking-db
@@ -12,7 +30,6 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    restart: always
 
   pgadmin:
     image: dpage/pgadmin4:8
@@ -24,7 +41,7 @@ services:
       - "5050:80"
     depends_on:
       - postgres
-    restart: always
 
 volumes:
   postgres_data:
+  gradle-cache:

@@ -10,7 +10,6 @@ public record EndOccupancyResponseDTO(
         UUID parkingSlotId,
         LocalDateTime startDate,
         LocalDateTime endDate,
-        //TODO cambiar el tipo de objeto
         double totalTime
 ) {
 }
